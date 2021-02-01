@@ -5,7 +5,7 @@
         <h1 class="main-title">Прогноз погоды</h1>
         <h3 class="main-subtitle">Тренировочное приложение</h3>
       </div>
-      <WeatherComponent></WeatherComponent>
+      <weather-component></weather-component>
     </div>
   </q-page>
 </template>
@@ -15,7 +15,7 @@ import WeatherComponent from "../components/WeatherComponent.vue";
 export default {
   name: "PageIndex",
   components: {
-    WeatherComponent
+    "weather-component": WeatherComponent
   }
 };
 </script>

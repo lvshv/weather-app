@@ -171,7 +171,8 @@ export default {
         this.error = null;
       } catch (e) {
         this.error = "Населенный пункт не найден";
-        this.$q.notify({ message: `Населенный пункт не найден`, color: "red" });
+        this.$q.notify({ message: `${this.error}`, color: "red" });
+
       }
     },
     autoSearchFilter(e) {
