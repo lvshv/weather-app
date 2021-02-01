@@ -157,12 +157,12 @@ export default {
           tomorrow: {
             temp: data.forecast.forecastday[1].day.avgtemp_c,
             img: `http:${data.forecast.forecastday[1].day.condition.icon}`,
-            text: data.forecast.forecastday[0].day.condition.text
+            text: data.forecast.forecastday[1].day.condition.text
           },
           afterTomorrow: {
             temp: data.forecast.forecastday[2].day.avgtemp_c,
             img: `http:${data.forecast.forecastday[2].day.condition.icon}`,
-            text: data.forecast.forecastday[0].day.condition.text
+            text: data.forecast.forecastday[2].day.condition.text
           }
         };
         console.log(this.weatherData);
