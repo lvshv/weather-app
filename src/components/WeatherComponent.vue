@@ -9,6 +9,8 @@
             @input="autoSearchFilter"
             @keydown.enter="getWeather"
             label="Название"
+            :error="error && error.length ? true : false"
+            :rules="[val => !!val || 'Населенный пункт не найден']"
           >
             <template v-slot:append>
               <q-icon name="close" @click="city = ''" class="cursor-pointer" />
@@ -58,30 +60,64 @@
           <div class="weather-bottom_left">
             <div class="weather-item">
               <span class="weather-item_title">Сегодня</span>
-              <q-icon name="fas fa-cloud" size="30px" color="dark" />
+              <q-icon
+                v-if="!weatherData.today.img"
+                name="fas fa-cloud"
+                size="30px"
+                color="dark"
+              />
+              <span v-else class="weather_image"
+                ><img :src="weatherData.today.img" alt=""
+              /></span>
             </div>
             <div class="weather-item">
               <span class="weather-item_title">Завтра</span>
-              <q-icon name="fas fa-cloud-rain" size="30px" color="dark" />
+              <q-icon
+                v-if="!weatherData.tomorrow.img"
+                name="fas fa-cloud-rain"
+                size="30px"
+                color="dark"
+              />
+              <span v-else class="weather_image"
+                ><img :src="weatherData.tomorrow.img" alt=""
+              /></span>
             </div>
             <div class="weather-item">
               <span class="weather-item_title">Послезавтра</span>
-              <q-icon name="fas fa-sun" size="30px" color="dark" />
+              <q-icon
+                v-if="!weatherData.afterTomorrow.img"
+                name="fas fa-sun"
+                size="30px"
+                color="dark"
+              />
+              <span v-else class="weather_image"
+                ><img :src="weatherData.afterTomorrow.img" alt=""
+              /></span>
             </div>
           </div>
           <div class="weather-bottom_right">
             <div class="weather-item">
-              <span class="weather-item_title">Облачно</span>
-              <span class="weather-item_title">{{ weatherData.today }}</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-item_title">Ясно</span>
-              <span class="weather-item_title">{{ weatherData.tomorrow }}</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-item_title">Дождь</span>
               <span class="weather-item_title">{{
-                weatherData.afterTomorrow
+                weatherData.today.text
+              }}</span>
+              <span class="weather-item_title">{{
+                weatherData.today.temp
+              }}</span>
+            </div>
+            <div class="weather-item">
+              <span class="weather-item_title">{{
+                weatherData.tomorrow.text
+              }}</span>
+              <span class="weather-item_title">{{
+                weatherData.tomorrow.temp
+              }}</span>
+            </div>
+            <div class="weather-item">
+              <span class="weather-item_title">{{
+                weatherData.afterTomorrow.text
+              }}</span>
+              <span class="weather-item_title">{{
+                weatherData.afterTomorrow.temp
               }}</span>
             </div>
           </div>
@@ -99,9 +135,9 @@ export default {
     defaultCity: "Moscow",
     city: "",
     weatherData: {
-      today: "+16",
-      tomorrow: "+21",
-      afterTomorrow: "+22"
+      today: { temp: "+16", img: "", text: "Облачно" },
+      tomorrow: { temp: "+21", img: "", text: "Ясно" },
+      afterTomorrow: { temp: "+22", img: "", text: "Дождь" }
     },
     error: null,
     autoCompleteSearch: null
@@ -112,18 +148,30 @@ export default {
         const { data } = await this.$axios.get(
           `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${this.city}&days=3`
         );
-        console.log(data);
-
         this.weatherData = {
-          today: data.forecast.forecastday[0].day.avgtemp_c,
-          tomorrow: data.forecast.forecastday[1].day.avgtemp_c,
-          afterTomorrow: data.forecast.forecastday[2].day.avgtemp_c
+          today: {
+            temp: data.forecast.forecastday[0].day.avgtemp_c,
+            img: `http:${data.forecast.forecastday[0].day.condition.icon}`,
+            text: data.forecast.forecastday[0].day.condition.text
+          },
+          tomorrow: {
+            temp: data.forecast.forecastday[1].day.avgtemp_c,
+            img: `http:${data.forecast.forecastday[1].day.condition.icon}`,
+            text: data.forecast.forecastday[0].day.condition.text
+          },
+          afterTomorrow: {
+            temp: data.forecast.forecastday[2].day.avgtemp_c,
+            img: `http:${data.forecast.forecastday[2].day.condition.icon}`,
+            text: data.forecast.forecastday[0].day.condition.text
+          }
         };
+        console.log(this.weatherData);
         let newCity = this.city[0].toUpperCase() + this.city.slice(1);
         this.defaultCity = newCity;
-        console.log(this.weatherData);
+        this.error = null;
       } catch (e) {
         this.error = "Населенный пункт не найден";
+        this.$q.notify({ message: `${this.error}`, color: "red" });
       }
     },
     autoSearchFilter(e) {
@@ -195,7 +243,8 @@ export default {
   display: flex;
 }
 .weather-bottom_right {
-  width: 171px;
+  min-width: 170px;
+  max-width: 300px;
 }
 .weather-bottom_left {
   width: 220px;
@@ -215,10 +264,15 @@ export default {
     text-align: left;
     color: #777;
     margin-bottom: 20px;
+    white-space: nowrap;
   }
 }
-
-.error {
-  color: red;
+.weather_image {
+  height: 34px;
+  width: 34px;
+  img {
+    height: 100%;
+    width: 100%;
+  }
 }
 </style>
