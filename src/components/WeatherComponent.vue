@@ -165,7 +165,6 @@ export default {
             text: data.forecast.forecastday[2].day.condition.text
           }
         };
-        console.log(this.weatherData);
         let newCity = this.city[0].toUpperCase() + this.city.slice(1);
         this.defaultCity = newCity;
         this.error = null;
